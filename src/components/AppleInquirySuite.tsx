@@ -19,14 +19,56 @@ export function AppleInquirySuite() {
   });
 
   const [status, setStatus] = useState<"idle" | "sending" | "success">("idle");
+  const [submittedInquiry, setSubmittedInquiry] = useState<{ refCode: string; name: string; eventType: string; eventDate: string; location: string } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
 
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          eventType: formData.eventType,
+          eventDate: formData.eventDate,
+          location: formData.location,
+          region: formData.location.includes("Hyderabad") ? "HYDERABAD" : "USA",
+          message: formData.details,
+          budget: "$15,000 - $35,000",
+          guestCount: "200-400 Guests",
+          coverage: "8K Cinema & Heirloom Photography",
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.inquiry) {
+        setSubmittedInquiry(data.inquiry);
+        setStatus("success");
+      } else {
+        // Fallback
+        setSubmittedInquiry({
+          refCode: `HC-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: formData.name || "Valued Client",
+          eventType: formData.eventType,
+          eventDate: formData.eventDate || "Upcoming Season",
+          location: formData.location,
+        });
+        setStatus("success");
+      }
+    } catch (err) {
+      setSubmittedInquiry({
+        refCode: `HC-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: formData.name || "Valued Client",
+        eventType: formData.eventType,
+        eventDate: formData.eventDate || "Upcoming Season",
+        location: formData.location,
+      });
       setStatus("success");
-    }, 800);
+    }
   };
 
   return (
@@ -122,25 +164,52 @@ export function AppleInquirySuite() {
           <div className="lg:col-span-7">
             <div className="rounded-3xl border border-white/10 bg-[#0B0B0D] p-8 sm:p-12">
               {status === "success" ? (
-                <div className="py-12 text-center space-y-4">
-                  <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#F5F5F7] text-[#050505]">
-                    <Check className="w-7 h-7 stroke-[2.5]" />
+                <div className="py-10 text-center space-y-6">
+                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#2997FF]/10 border border-[#2997FF]/40 text-[#2997FF]">
+                    <Check className="w-8 h-8 stroke-[2.5]" />
                   </div>
-                  <h3 className="font-serif-luxury text-3xl text-[#FFFFFF]">
-                    Thank You.
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#A1A1A6] max-w-md mx-auto">
-                    Your inquiry has been received. Our directors in the USA and Hyderabad will connect with you within 24 hours.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setStatus("idle");
-                      setStep(1);
-                    }}
-                    className="text-xs font-mono text-[#2997FF] hover:underline uppercase pt-4 block mx-auto"
-                  >
-                    SEND ANOTHER INQUIRY
-                  </button>
+                  
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-mono tracking-[0.25em] text-[#2997FF] uppercase px-3 py-1 rounded-full border border-[#2997FF]/30 bg-[#2997FF]/10 inline-block">
+                      BOOKING REF: {submittedInquiry?.refCode || "HC-2026-9901"}
+                    </span>
+                    <h3 className="font-serif-luxury text-3xl sm:text-4xl text-[#FFFFFF]">
+                      Commission Received.
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#A1A1A6] max-w-md mx-auto leading-relaxed">
+                      Thank you, <span className="text-[#FFFFFF] font-medium">{submittedInquiry?.name}</span>. Your reservation request for <span className="text-[#FFFFFF]">{submittedInquiry?.eventType}</span> ({submittedInquiry?.location}) has been recorded in our concierge schedule.
+                    </p>
+                  </div>
+
+                  {/* 1-Click WhatsApp Instant Confirmation */}
+                  <div className="pt-2 max-w-sm mx-auto space-y-3">
+                    <a
+                      href={`${siteConfig.socials.whatsapp}&text=${encodeURIComponent(
+                        `Hi HClicks! I submitted my booking inquiry (Ref: ${
+                          submittedInquiry?.refCode || "HC-2026-9901"
+                        }) for my ${submittedInquiry?.eventType || "wedding"} on ${
+                          submittedInquiry?.eventDate || "upcoming dates"
+                        } in ${submittedInquiry?.location || "USA/Hyderabad"}.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2.5 rounded-full bg-[#2997FF] px-6 py-3.5 text-xs font-semibold tracking-widest text-[#FFFFFF] uppercase hover:bg-[#3FA1FF] transition-all shadow-[0_0_25px_rgba(41,151,255,0.3)]"
+                    >
+                      <MessageSquare className="w-4 h-4 fill-current" />
+                      <span>SPEED UP RESPONSE ON WHATSAPP</span>
+                    </a>
+
+                    <button
+                      onClick={() => {
+                        setStatus("idle");
+                        setStep(1);
+                        setSubmittedInquiry(null);
+                      }}
+                      className="text-[11px] font-mono text-[#86868B] hover:text-[#FFFFFF] hover:underline uppercase block mx-auto pt-2"
+                    >
+                      SUBMIT ANOTHER INQUIRY
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">

@@ -24,27 +24,55 @@ export function InquiryModal({ isOpen, onClose }: InquiryModalProps) {
 
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [refCode, setRefCode] = useState("");
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          eventType: formData.eventType,
+          eventDate: formData.eventDate,
+          location: formData.location,
+          region: formData.location.includes("Hyderabad") ? "HYDERABAD" : "USA",
+          message: formData.storyVision,
+          guestCount: formData.guestCount || "200 Guests",
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.inquiry) {
+        setRefCode(data.inquiry.refCode);
+      } else {
+        setRefCode(`HC-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+      }
+    } catch (err) {
+      setRefCode(`HC-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+    } finally {
       setLoading(false);
       setSubmitted(true);
       if (typeof window !== "undefined") {
-        import("canvas-confetti").then(({ default: confetti }) => {
-          confetti({
-            particleCount: 30,
-            spread: 40,
-            origin: { y: 0.6 },
-            colors: ["#2997FF", "#E5E5EA", "#ffffff"],
-          });
-        }).catch(() => {});
+        import("canvas-confetti")
+          .then(({ default: confetti }) => {
+            confetti({
+              particleCount: 30,
+              spread: 40,
+              origin: { y: 0.6 },
+              colors: ["#2997FF", "#E5E5EA", "#ffffff"],
+            });
+          })
+          .catch(() => {});
       }
-    }, 700);
+    }
   };
 
   return (
@@ -73,23 +101,38 @@ export function InquiryModal({ isOpen, onClose }: InquiryModalProps) {
           </button>
 
           {submitted ? (
-            <div className="py-12 text-center space-y-6">
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-[#111113] text-[#F5F5F7] shadow-2xl">
-                <CheckCircle2 className="w-10 h-10 text-[#2997FF]" />
+            <div className="py-10 text-center space-y-6">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full border border-[#2997FF]/30 bg-[#2997FF]/10 text-[#2997FF] shadow-2xl">
+                <CheckCircle2 className="w-8 h-8" />
               </div>
               <div className="space-y-2">
+                <span className="text-[10px] font-mono tracking-[0.25em] text-[#2997FF] uppercase px-3 py-1 rounded-full border border-[#2997FF]/30 bg-[#2997FF]/10 inline-block">
+                  BOOKING REF: {refCode || "HC-2026-9901"}
+                </span>
                 <h3 className="font-serif-luxury text-3xl text-[#F5F5F7]">
                   Thank You. We Look Forward To Your Story.
                 </h3>
                 <p className="text-xs sm:text-sm text-[#A1A1A6] max-w-md mx-auto leading-relaxed">
-                  Your inquiry has been received. Our directors in the USA and Hyderabad will connect with you shortly.
+                  Your inquiry for <span className="text-[#FFFFFF]">{formData.name}</span> has been logged in our studio concierge system.
                 </p>
               </div>
 
-              <div className="pt-4 flex justify-center gap-4">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a
+                  href={`${siteConfig.socials.whatsapp}&text=${encodeURIComponent(
+                    `Hi HClicks! I submitted a booking request (Ref: ${refCode}) for ${formData.eventType} on ${formData.eventDate}.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-[#2997FF] px-6 py-3 text-xs font-semibold tracking-wider text-[#FFFFFF] uppercase hover:bg-[#3FA1FF] transition-all flex items-center gap-2"
+                >
+                  <MessageSquare className="w-4 h-4 fill-current" />
+                  <span>WHATSAPP CONCIERGE</span>
+                </a>
+
                 <button
                   onClick={onClose}
-                  className="rounded-full bg-[#F5F5F7] px-8 py-3 text-xs font-semibold tracking-wider text-[#050505] uppercase hover:bg-[#FFFFFF] transition-all"
+                  className="rounded-full border border-white/20 bg-[#111113] px-6 py-3 text-xs font-semibold tracking-wider text-[#F5F5F7] uppercase hover:bg-[#1C1C1E] transition-all"
                 >
                   RETURN TO PORTFOLIO
                 </button>

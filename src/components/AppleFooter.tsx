@@ -168,6 +168,10 @@ export function AppleFooter({ onOpenInquiry }: AppleFooterProps) {
             <span>USA & HYDERABAD</span>
             <span>•</span>
             <span className="text-[#A1A1A6]">CINEMATIC STORYTELLING</span>
+            <span>•</span>
+            <Link href="/admin" className="text-[#2997FF] hover:underline">
+              ADMIN PORTAL
+            </Link>
           </div>
         </div>
       </div>
