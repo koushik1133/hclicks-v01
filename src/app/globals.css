@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #050505;
+  --bg-secondary: #0B0B0D;
+  --surface: #111113;
+  --foreground: #F5F5F7;
+  --text-secondary: #A1A1A6;
+  --text-muted: #6E6E73;
+  --border: rgba(255, 255, 255, 0.10);
+  --strong-border: rgba(255, 255, 255, 0.18);
+  --accent-primary: #2997FF;
+  --accent-secondary: #5E5CE6;
+  --bg-theme: #050505;
+  --card-theme: #111113;
+  --theme-glow: rgba(41, 151, 255, 0.15);
+  --theme-filter: contrast(1.05) saturate(1.02);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-theme, #050505);
+  color: var(--foreground, #F5F5F7);
+  font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.8s ease;
+}
+
+body {
+  background-color: var(--bg-theme, #050505);
+  color: #F5F5F7;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+  transition: background-color 0.8s ease;
+}
+
+/* Film Grain Overlay */
+.film-grain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1c1c1e;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2997FF;
+}
+
+/* Text Selection */
+::selection {
+  background: rgba(41, 151, 255, 0.3);
+  color: #FFFFFF;
+}
+
+/* Hide scrollbar for clean horizontal rails */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Editorial Typography Styles */
+.font-serif-luxury {
+  font-family: var(--font-cormorant), "Instrument Serif", "Georgia", serif;
+}
+
+.font-editorial-title {
+  font-family: var(--font-cinzel), "Instrument Serif", "Georgia", serif;
+}
+
+/* Silver / Accent Gradient Text */
+.text-accent-gradient {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F7 50%, #A1A1A6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.5s ease;
+}
+
+.text-blue-gradient {
+  background: linear-gradient(135deg, #64B5F6 0%, #2997FF 50%, #5E5CE6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Marquee Keyframes */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Letterbox Aspect Ratios */
+.aspect-cinemascope {
+  aspect-ratio: 2.39 / 1;
+}
+
+.aspect-anamorphic {
+  aspect-ratio: 2.35 / 1;
+}
+
+/* Dynamic theme glow */
+.theme-shadow-glow {
+  box-shadow: 0 0 40px var(--theme-glow);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
